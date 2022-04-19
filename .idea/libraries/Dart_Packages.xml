@@ -184,13 +184,6 @@
             </list>
           </value>
         </entry>
-        <entry key="hydrate">
-          <value>
-            <list>
-              <option value="$PROJECT_DIR$/../lib" />
-            </list>
-          </value>
-        </entry>
         <entry key="intl">
           <value>
             <list>
@@ -532,7 +525,6 @@
       <root url="file://C:/src/flutter/flutter/packages/flutter/lib" />
       <root url="file://C:/src/flutter/flutter/packages/flutter_test/lib" />
       <root url="file://C:/src/flutter/flutter/packages/flutter_web_plugins/lib" />
-      <root url="file://$PROJECT_DIR$/../lib" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

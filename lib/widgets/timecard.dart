@@ -7,6 +7,12 @@ import 'package:hydrate/screens/mainScreen.dart';
 import 'package:hydrate/utils/notification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+List<String> timeList = List.filled(4, '9:00 AM', growable: false);
+List<String> checkBoxListString = List.filled(4, 'false', growable: false);
+List<bool> checkBoxListBool = List.filled(4, false, growable: false);
+List<bool> convertedBool = List.filled(4, false, growable: false);
+List<String> convertedString = List.filled(4, 'false', growable: false);
+
 // ignore: must_be_immutable
 class Timecard extends StatefulWidget {
   int index;
@@ -20,37 +26,59 @@ class Timecard extends StatefulWidget {
   State<Timecard> createState() => _TimecardState();
 }
 
+int vid = 0;
+
 class _TimecardState extends State<Timecard> {
   @override
   void initState() {
     super.initState();
+
     getTime();
-    int vid = createUniqueId();
-
-    AndroidAlarmManager.periodic(
-      const Duration(minutes: 10),
-      vid,
-      createRemainderNotification,
-    );
+    getCheckBox();
   }
-
-  List<String> timeList = List.filled(4, '9:00 AM', growable: false);
 
   TimeOfDay _time = TimeOfDay.now();
   bool checkBox = false;
-  void onCheckBoxChanged(bool newValue) {
-    setState(() {
-      checkBox = newValue;
-    });
-  }
 
   void onTimeChanged(TimeOfDay newTime) {
     setState(() {
       _time = newTime;
       dog.i(" onTimeChanged ${_time.format(context).toString()}");
       timeList[widget.index] = _time.format(context).toString();
-      // timeList.insert(widget.index, _time.format(context).toString());
+      // timeList[widget.index]= _time.format(context).toString());
+      dog.i("Time List length ${timeList.length}");
+      dog.i("Time Hour ${_time.hour}");
+      dog.i("Time Minute ${_time.minute}");
+
+      final now = DateTime.now();
+      DateTime todaysTime =
+          DateTime(now.year, now.month, now.day, _time.hour, _time.minute);
+      notification(todaysTime, widget.index);
+
       setTime(timeList);
+    });
+  }
+
+  void onCheckBoxChanged(bool? newValue) {
+    setState(() {
+      checkBoxListBool[widget.index] = newValue!;
+      parseString(checkBoxListBool);
+      dog.i("bool list $checkBoxListBool");
+      setCheckBox(convertedString);
+      dog.i("setcheck box $convertedString");
+      if (checkBoxListBool[widget.index]) {
+        if (widget.index == 0) {
+          waterValue.value += 0.25;
+        } else if (widget.index == 1) {
+          waterValue.value += 0.25;
+        } else if (widget.index == 2) {
+          waterValue.value += 0.25;
+        } else {
+          waterValue.value += 0.25;
+        }
+      } else {
+        waterValue.value -= 0.25;
+      }
     });
   }
 
@@ -66,9 +94,6 @@ class _TimecardState extends State<Timecard> {
           children: [
             InkWell(
               child: Text(
-                // storedTime.isEmpty
-                //     ? _time.format(context).toString()
-                //     :
                 timeList[widget.index],
                 style: const TextStyle(
                   fontSize: 40,
@@ -81,44 +106,16 @@ class _TimecardState extends State<Timecard> {
                   context: context,
                   value: _time,
                   onChange: onTimeChanged,
-                  minuteInterval: MinuteInterval.TEN,
+                  minuteInterval: MinuteInterval.ONE,
                   // Optional onChange to receive value as DateTime
                 ));
               },
             ),
             Checkbox(
-                activeColor: Colors.green,
-                value: checkBox,
-                onChanged: (bool? value) {
-                  setState(() {
-                    checkBox = value!;
-                  });
-                  if (checkBox) {
-                    if (widget.index == 0) {
-                      waterValue.value += 0.25;
-                    } else if (widget.index == 1) {
-                      waterValue.value += 0.25;
-                    } else if (widget.index == 2) {
-                      waterValue.value += 0.25;
-                    } else {
-                      waterValue.value += 0.25;
-                    }
-                  }
-                  if (!checkBox) {
-                    if (widget.index == 0) {
-                      waterValue.value -= 0.25;
-                    } else if (widget.index == 1) {
-                      waterValue.value -= 0.25;
-                    } else if (widget.index == 2) {
-                      waterValue.value -= 0.25;
-                    } else {
-                      waterValue.value -= 0.25;
-                    }
-                  }
-                }
-                // RemainderScreenState().callBack();
-
-                )
+              activeColor: Colors.green,
+              value: checkBoxListBool[widget.index],
+              onChanged: onCheckBoxChanged,
+            )
           ],
         ),
       ),
@@ -137,6 +134,18 @@ class _TimecardState extends State<Timecard> {
     dog.i("Time list in get time $timeList");
     setState(() {});
   }
+
+  void setCheckBox(List<String> checkBoxList) async {
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setStringList('checkbox', convertedString);
+  }
+
+  void getCheckBox() async {
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    convertedString = pref.getStringList('checkbox')!;
+    parseBool(convertedString);
+    setState(() {});
+  }
 }
 
 void alarmCheck() {
@@ -144,4 +153,29 @@ void alarmCheck() {
 
   final DateTime now = DateTime.now();
   dog.i("Alarm Alarmed $now");
+}
+
+parseBool(List<String> list) {
+  for (int i = 0; i < list.length; i++) {
+    if (list[i] == 'true') {
+      convertedBool[i] = true;
+    } else {
+      convertedBool[i] = false;
+    }
+  }
+  checkBoxListBool = convertedBool;
+}
+
+parseString(List<bool> list) {
+  for (int i = 0; i < list.length; i++) {
+    if (list[i] == true) {
+      convertedString[i] = 'true';
+    } else {
+      convertedString[i] = 'false';
+    }
+  }
+}
+
+notification(DateTime time, int id) {
+  AndroidAlarmManager.oneShotAt(time, id, createRemainderNotification);
 }

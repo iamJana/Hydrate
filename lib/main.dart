@@ -1,14 +1,7 @@
-import 'dart:convert';
-
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:dog/dog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:http/http.dart' as http;
 import 'package:hydrate/screens/mainScreen.dart';
-
-import 'package:workmanager/workmanager.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +15,7 @@ main() async {
           channelDescription: 'Notification channel for basic tests',
           channelShowBadge: true,
           importance: NotificationImportance.High,
-          defaultColor: const Color(0xFF9D50DD),
+          defaultColor: const Color.fromARGB(255, 120, 40, 185),
           ledColor: Colors.white)
     ],
   );

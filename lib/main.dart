@@ -2,9 +2,14 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:hydrate/screens/mainScreen.dart';
+import 'package:hydrate/utils/sharedpref.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+late SharedPreferences pref;
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  pref = await Prefs.init();
   AwesomeNotifications().initialize(
     null,
     [

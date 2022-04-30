@@ -3,8 +3,10 @@ import 'package:day_night_time_picker/lib/constants.dart';
 import 'package:day_night_time_picker/lib/daynight_timepicker.dart';
 import 'package:dog/dog.dart';
 import 'package:flutter/material.dart';
+import 'package:hydrate/main.dart';
 import 'package:hydrate/screens/mainScreen.dart';
 import 'package:hydrate/utils/notification.dart';
+import 'package:hydrate/utils/sharedpref.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 List<String> timeList = List.filled(4, '9:00 AM', growable: false);
@@ -32,9 +34,22 @@ class _TimecardState extends State<Timecard> {
   @override
   void initState() {
     super.initState();
-
-    getTime();
-    getCheckBox();
+    if (pref.containsKey('Time')) {
+      getTime();
+      dog.i("SharedPreference of time list $getTime");
+    } else {
+      dog.v("No time sharedpreference stored ");
+    }
+    if (pref.containsKey('checkbox')) {
+      getCheckBox();
+      dog.i("SharedPreference of check list $getCheckBox");
+    } else {
+      dog.v("No time sharedpreference stored ");
+    }
+    if (pref.containsKey('watervalue')) {
+      getWaterLevel();
+      dog.i(" WaterValue contains in sharedPreferences");
+    }
   }
 
   TimeOfDay _time = TimeOfDay.now();
@@ -77,9 +92,11 @@ class _TimecardState extends State<Timecard> {
           waterValue.value += 0.25;
         }
       } else {
-        if(waterValue.value>0)
-       { waterValue.value -= 0.25;}
+        if (waterValue.value > 0) {
+          waterValue.value -= 0.25;
+        }
       }
+      setWaterLevel(waterValue.value);
     });
   }
 
@@ -124,27 +141,32 @@ class _TimecardState extends State<Timecard> {
   }
 
   Future<void> setTime(List<String> timeList) async {
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setStringList('Time', timeList);
+    Prefs.setStringList('Time', timeList);
     dog.i("Time list in set time $timeList");
   }
 
   void getTime() async {
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    timeList = pref.getStringList('Time')!;
+    timeList = Prefs.getStringList('Time')!;
     dog.i("Time list in get time $timeList");
     setState(() {});
   }
 
   void setCheckBox(List<String> checkBoxList) async {
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setStringList('checkbox', convertedString);
+    Prefs.setStringList('checkbox', convertedString);
   }
 
   void getCheckBox() async {
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    convertedString = pref.getStringList('checkbox')!;
+    convertedString = Prefs.getStringList('checkbox')!;
     parseBool(convertedString);
+    setState(() {});
+  }
+
+  void setWaterLevel(double value) async {
+    Prefs.setDouble('watervalue', value);
+  }
+
+  void getWaterLevel() async {
+    waterValue.value = Prefs.getDouble('watervalue')!;
     setState(() {});
   }
 }

@@ -77,7 +77,8 @@ class _TimecardState extends State<Timecard> {
           waterValue.value += 0.25;
         }
       } else {
-        waterValue.value -= 0.25;
+        if(waterValue.value>0)
+       { waterValue.value -= 0.25;}
       }
     });
   }
